@@ -4,3 +4,8 @@
 # tree-sitter-wake
 
 [Wake](https://github.com/sifive/wake) grammar for [tree-sitter](https://github.com/tree-sitter/tree-sitter).
+
+## References
+
+* https://github.com/sifive/wake/blob/master/src/parser.cpp
+* https://github.com/sifive/wake/blob/master/share/doc/wake/quickref.md
