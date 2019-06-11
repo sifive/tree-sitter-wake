@@ -1,0 +1,40 @@
+{
+  "name": "tree-sitter-wake",
+  "version": "0.1.0",
+  "description": "Wake grammar for tree-sitter",
+  "license": "Apache-2.0",
+  "author": "SiFive",
+  "homepage": "https://github.com/sifive/tree-sitter-wake#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sifive/tree-sitter-wake.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sifive/tree-sitter-wake/issues"
+  },
+  "main": "index.js",
+  "files": [
+    "grammar.js",
+    "binding.gyp",
+    "src/*"
+  ],
+  "keywords": [
+    "parser",
+    "tree-sitter",
+    "verilog"
+  ],
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "gen": "tree-sitter generate",
+    "install": "if [ ! -d ./src ]; then tree-sitter generate; fi && node-gyp configure build",
+    "test": "tree-sitter test"
+  },
+  "dependencies": {
+    "nan": "^2.13.1"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.14.7"
+  }
+}
