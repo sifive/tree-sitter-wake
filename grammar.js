@@ -60,8 +60,6 @@ module.exports = grammar({
       seq('(', $._full_type, ')'),
       $._identifier),
 
-    term_types: $ => repeat1($._term_type),
-
     application_type: $ => seq($.high_identifier, repeat1($._term_type)),
     unary_type:  $ => unary_ops ($, $._full_type),
     binary_type: $ => binary_ops($, $._full_type),
@@ -91,7 +89,7 @@ module.exports = grammar({
     unary_pattern:  $ => unary_ops ($, $._full_pattern),
     binary_pattern: $ => binary_ops($, $._full_pattern),
 
-    // Single line expressions --------------------------------------------------------
+    // Expressions --------------------------------------------------------------------
 
     _full_expression: $ => choice(
       $._operator_expression,
@@ -129,8 +127,8 @@ module.exports = grammar({
     binary_expression: $ => binary_ops($, $._operator_expression),
     dot_expression: $ => left(3, $.dot_op, $._term_expression),
 
-    prim_expression: $ => seq('prim', $.string),
-    subscribe_expression: $ => seq('subscribe', $.low_identifier),
+    prim_expression: $ => seq('prim', field('name', $.string)),
+    subscribe_expression: $ => seq('subscribe', field('id', $.low_identifier)),
 
     _block_body: $ => seq(
       field('preamble', repeat(choice($.definition, $.import, $.target))),
@@ -168,8 +166,15 @@ module.exports = grammar({
     global_flag: $ => 'global',
     export_flag: $ => 'export',
 
-    top_definition: $ => seq(optional($.global_flag), optional($.export_flag), $.definition),
-    top_target:     $ => seq(optional($.global_flag), optional($.export_flag), $.target),
+    top_definition: $ => seq(
+      field('global', optional($.global_flag)),
+      field('export', optional($.export_flag)),
+      field('definition', $.definition)),
+
+    top_target: $ => seq(
+      field('global', optional($.global_flag)),
+      field('export', optional($.export_flag)),
+      field('target', $.target)),
 
     definition: $ => seq(
       'def', field('pattern', $._def_pattern),
@@ -195,8 +200,8 @@ module.exports = grammar({
     type_params: $ => repeat1($.low_identifier),
 
     tuple: $ => seq(
-      optional($.global_flag),
-      optional($.export_flag),
+      field('global', optional($.global_flag)),
+      field('export', optional($.export_flag)),
       'tuple',
       field('name', $.high_identifier),
       field('params', optional($.type_params)),
@@ -208,8 +213,8 @@ module.exports = grammar({
     fields: $ => repeat1($.field),
     field: $ => seq(
       $._eol,
-      optional($.global_flag),
-      optional($.export_flag),
+      field('global', optional($.global_flag)),
+      field('export', optional($.export_flag)),
       field('name', $.high_identifier),
       ':',
       field('type', $._full_type)),
