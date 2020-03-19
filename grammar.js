@@ -28,6 +28,7 @@ const operators = $ => [
   [ $.comma_op,       false, true  ], // future: postfix?
 ];
 
+// !!! these do not actually obey the wake parser precedence rules!
 function unary_ops($, expr) {
   function to_unary([pattern, lft, pfx], i) {
     if (pfx) return prefix (100-2*i, pattern, expr);
@@ -96,17 +97,18 @@ module.exports = grammar({
 
     // Types --------------------------------------------------------------------------
 
-    // !!! COLON
     _full_type: $ => choice(
       $._term_type,
       $.application_type,
       $.binary_type,
-      $.unary_type),
+      $.unary_type,
+      $.label_type),
 
     _term_type: $ => choice(
       seq('(', $._full_type, ')'),
       $._identifier),
 
+    label_type: $ => seq($.low_identifier, ':', $._full_type),
     application_type: $ => seq($.high_identifier, repeat1($._term_type)),
     unary_type:  $ => unary_ops ($, $._full_type),
     binary_type: $ => binary_ops($, $._full_type),
@@ -117,8 +119,7 @@ module.exports = grammar({
       $._term_pattern,
       $.application_pattern,
       $.binary_pattern,
-      $.unary_pattern,
-      $.hole),
+      $.unary_pattern),
 
     _def_pattern: $ => choice(
       $._full_pattern,
@@ -126,6 +127,7 @@ module.exports = grammar({
 
     _term_pattern: $ => choice(
       seq('(', $._full_pattern, ')'),
+      $.hole,
       $._identifier,
       $._literal),
 
@@ -151,7 +153,7 @@ module.exports = grammar({
       $.unary_expression,
       $.prim_expression,
       $.subscribe_expression,
-      $.match_expression),
+      $._match_expression),
 
     _term_expression: $ => choice(
       seq('(', $.block_expression, ')'),
@@ -188,22 +190,46 @@ module.exports = grammar({
 
     // Match expression ---------------------------------------------------------------
 
-    // !!! multimatch
+    _match_expression: $ => choice(
+      alias($.match1_expression, $.match_expression),
+      $.match_expression),
+
+    match1_expression: $ => seq(
+      'match',
+      field('terms', alias($.match_terms1, $.match_terms)),
+      $._indent,
+      field('rules', alias($.match_rules1, $.match_rules)),
+      $._dedent),
+
     match_expression: $ => seq(
       'match',
-      field('arg', $._term_expression),
+      field('terms', $.match_terms),
       $._indent,
       field('rules', $.match_rules),
       $._dedent),
 
+    match_terms: $ => seq($._term_expression, repeat1($._term_expression)),
+    match_terms1: $ => seq($._term_expression),
+
+    match_rules1: $ => repeat1(alias($.match_rule1, $.match_rule)),
     match_rules: $ => repeat1($.match_rule),
 
-    match_rule: $ => seq(
+    match_rule1: $ => seq(
       $._eol,
-      field('pattern', $._full_pattern),
+      field('patterns', alias($.match_patterns1, $.match_patterns)),
       field('guard', optional(alias($.match_guard, $.block_expression))),
       '=',
       field('block', $.block_expression)),
+
+    match_rule: $ => seq(
+      $._eol,
+      field('patterns', $.match_patterns),
+      field('guard', optional(alias($.match_guard, $.block_expression))),
+      '=',
+      field('block', $.block_expression)),
+
+    match_patterns: $ => repeat1($._term_pattern),
+    match_patterns1: $ => $._full_pattern,
 
     match_guard: $ => choice(
       seq('if', $._indent, $._eol, $._block_body, $._dedent, $._eol),
