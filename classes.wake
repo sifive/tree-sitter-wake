@@ -1,0 +1,52 @@
+def curl url =
+  def file = simplify "{here}/{replace `.*/` '' url}"
+  def cmdline = which "curl", "-o", file, url, Nil
+  def curl = job cmdline Nil
+  curl.getJobOutput
+
+def ranges regex fixup =
+  def helper = match _
+    code, _, c, _ if matches regex c = intbase 16 code
+    _ = None
+  def compress i = match _
+    Nil = Pair i i, Nil
+    Pair s e, rest =
+      if i+1 == s
+      then Pair i e, rest
+      else Pair i i, Pair s e, rest
+  def escape c =
+    def hex = strbase 16 c
+    if c < 16    then "\\x0{hex}" else
+    if c < 256   then "\\x{hex}"  else
+    if c < 4096  then "\\u0{hex}" else
+    if c < 65536 then "\\u{hex}"  else
+    "\\u\{{hex}\}"
+  def render (Pair s e) =
+    if s == e then escape s else
+    if s+1 == e then "{escape s}{escape e}" else
+    "{escape s}-{escape e}"
+  def url = "ftp://ftp.unicode.org/Public/UNIDATA/UnicodeData.txt"
+  def lines = curl url | read | getWhenFail "" | tokenize `\n`
+  def codes = mapPartial (tokenize `;` _ | helper) lines
+  fixup codes | foldr compress Nil | map render | catWith ""
+
+def add l1 l2 = sortBy (_<_) (l2 ++ l1)
+def modop l = add l po_op | filter (\x x != 0x5f && ! exists (_ == x) smid) # _ = 0x5f
+def delsp = filter (\x x != 0x5f && x != 0x5e) # ^ = 0x5e
+
+# Allow also these in identifiers; e.g. def ∂x = ...
+def smid = explode "϶∂∅∆∇∞∿⋮⋯⋰⋱▷◁◸◹◺◻◼◽◾◿⟀⟁⦰⦱⦲⦳⦴⦵⦽⧄⧅⧈⧉⧊⧋⧌⧍⧖⧗⧝⧞⧠⧨⧩⧪⧫⧬⧭⧮⧯⧰⧱⧲⧳" | map unicodeToInteger
+def po_op = explode "!%&*,./:-" | map unicodeToInteger
+def underscore = 0x5f
+
+def classes = "%
+  const id_mod  = '[%{ranges `Lm|M.` (_)}]';
+  const id_low  = '[%{ranges `L[lo]|So` (add (underscore, smid))}]';
+  const id_high = '[%{ranges `L[tu]` (_)}]';
+  const id_body = '[%{ranges `L.|So|N.|Pc|M.` (add smid)}]';
+  const op_mod  = '[%{ranges `Sk` delsp}]';
+  const op_body = '[%{ranges `Sm|Sc|Sk` modop}]';
+  const Sc = '[♯%{ranges `Sc` (_)}]';
+  %"
+
+def _ = println classes
