@@ -1,0 +1,75 @@
+==================
+Package system
+==================
+
+package hello
+from v1_wake import foo=map List - +
+from v1_wake import _
+from v1_wake import def unary *
+from v1_wake import def binary / = |
+from v1_wake import topic environment
+from v1_wake import type Pair
+from v1_wake export def main=foldr catWith
+from v1_wake export def binary * .
+from v1_wake export type Boolean
+from v1_wake export topic environment
+
+---
+
+(source_file
+  (package name: (identifier_package))
+  (import
+    package: (identifier_package)
+    ideqs: (ideqs
+      (ideq to: (id) from: (id))
+      (ideq to: (id))
+      (ideq to: (id (addsub_op)))
+      (ideq to: (id (addsub_op)))))
+  (import
+    package: (identifier_package)
+    ideqs: (hole_package))
+  (import
+    package: (identifier_package)
+    kind: (def_kind)
+    arity: (unary_arity)
+    ideqs: (ideqs
+      (ideq to: (id (muldiv_op)))))
+  (import
+    package: (identifier_package)
+    kind: (def_kind)
+    arity: (binary_arity)
+    ideqs: (ideqs
+      (ideq to: (id (muldiv_op)) from: (id (or_op)))))
+  (import
+    package: (identifier_package)
+    kind: (topic_kind)
+    ideqs: (ideqs
+      (ideq to: (id))))
+  (import
+    package: (identifier_package)
+    kind: (type_kind)
+    ideqs: (ideqs
+      (ideq to: (id))))
+  (export
+    package: (identifier_package)
+    kind: (def_kind)
+    ideqs: (ideqs
+      (ideq to: (id) from: (id))
+      (ideq to: (id))))
+  (export
+    package: (identifier_package)
+    kind: (def_kind)
+    arity: (binary_arity)
+    ideqs: (ideqs
+      (ideq to: (id (muldiv_op)))
+      (ideq to: (id (dot_op)))))
+  (export
+    package: (identifier_package)
+    kind: (type_kind)
+    ideqs: (ideqs
+      (ideq to: (id))))
+  (export
+    package: (identifier_package)
+    kind: (topic_kind)
+    ideqs: (ideqs
+      (ideq to: (id)))))

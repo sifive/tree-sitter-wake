@@ -350,6 +350,7 @@ let rules = {
   id: $ => choice(
     $._low_identifier,
     $._high_identifier,
+    $.dot_op,
     ...operators.map(([pattern, lft, pfx]) => pattern($))),
   ideq: $ => seq(
     field('to', $.id),
