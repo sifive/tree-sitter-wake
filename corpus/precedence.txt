@@ -1,0 +1,166 @@
+==================
+Package system
+==================
+
+def comma  = 1, , := 2 := 9, , 3, ,
+def colon  = := ∀ x ∀ y := abc
+def quant  = ∀ z → a ↔ b ← c
+def dollar = catWith " " $ map str $ filter (_%3 == 0) $ seq 100
+def pipe = seq 100 | filter (_%3 == 0) | map str | catWith " "
+def logic = !a != !d && b != q > 12 || c > 7 == e > 9 && d < 5
+
+---
+
+(source_file
+  (top_definition
+    definition: (definition
+      pattern: (low_identifier_pattern)
+      block: (block_expression
+        expression: (binary_expression
+          lhs: (unary_expression
+            operand: (integer)
+            operator: (comma_op))
+          operator: (comma_op)
+          rhs: (binary_expression
+            lhs: (unary_expression
+              operand: (binary_expression
+                lhs: (unary_expression
+                  operator: (colon_op)
+                  operand: (integer))
+                operator: (colon_op)
+                rhs: (integer))
+              operator: (comma_op))
+            operator: (comma_op)
+            rhs: (unary_expression
+              operand: (unary_expression
+                operand: (integer)
+                operator: (comma_op))
+              operator: (comma_op)))))))
+  (top_definition
+    definition: (definition
+      pattern: (low_identifier_pattern)
+      block: (block_expression
+        expression: (binary_expression
+          lhs: (unary_expression
+            operator: (colon_op)
+            operand: (binary_expression
+              lhs: (unary_expression
+                operator: (quantifier_op)
+                operand: (low_identifier_expression))
+              operator: (quantifier_op)
+              rhs: (low_identifier_expression)))
+          operator: (colon_op)
+          rhs: (low_identifier_expression)))))
+  (top_definition
+    definition: (definition
+      pattern: (low_identifier_pattern)
+      block: (block_expression
+        expression: (unary_expression
+          operator: (quantifier_op)
+          operand: (binary_expression
+            lhs: (binary_expression
+              lhs: (low_identifier_expression)
+              operator: (lr_arrow_op)
+              rhs: (low_identifier_expression))
+            operator: (bi_arrow_op)
+            rhs: (binary_expression
+              lhs: (low_identifier_expression)
+              operator: (lr_arrow_op)
+              rhs: (low_identifier_expression)))))))
+  (top_definition
+    definition: (definition
+      pattern: (low_identifier_pattern)
+      block: (block_expression
+        expression: (binary_expression
+          lhs: (application_expression
+            fn: (low_identifier_expression)
+            (double_string))
+          operator: (currency_op)
+          rhs: (binary_expression
+            lhs: (application_expression
+              fn: (low_identifier_expression)
+              (low_identifier_expression))
+            operator: (currency_op)
+            rhs: (binary_expression
+              lhs: (application_expression
+                fn: (low_identifier_expression)
+                (block_expression
+                  expression: (binary_expression
+                    lhs: (binary_expression
+                      lhs: (hole_expression)
+                      operator: (muldiv_op)
+                      rhs: (integer))
+                    operator: (inequality_op)
+                    rhs: (integer))))
+              operator: (currency_op)
+              rhs: (application_expression
+                fn: (low_identifier_expression)
+                (integer))))))))
+  (top_definition
+    definition: (definition
+      pattern: (low_identifier_pattern)
+      block: (block_expression
+        expression: (binary_expression
+          lhs: (binary_expression
+            lhs: (binary_expression
+              lhs: (application_expression
+                fn: (low_identifier_expression)
+                (integer))
+              operator: (or_op)
+              rhs: (application_expression
+                fn: (low_identifier_expression)
+                (block_expression
+                  expression: (binary_expression
+                    lhs: (binary_expression
+                      lhs: (hole_expression)
+                      operator: (muldiv_op)
+                      rhs: (integer))
+                    operator: (inequality_op)
+                    rhs: (integer)))))
+            operator: (or_op)
+            rhs: (application_expression
+              fn: (low_identifier_expression)
+              (low_identifier_expression)))
+          operator: (or_op)
+          rhs: (application_expression
+            fn: (low_identifier_expression)
+            (double_string))))))
+  (top_definition
+    definition: (definition
+      pattern: (low_identifier_pattern)
+      block: (block_expression
+        expression: (binary_expression
+          lhs: (binary_expression
+            lhs: (binary_expression
+              lhs: (unary_expression
+                operator: (inequality_op)
+                operand: (low_identifier_expression))
+              operator: (inequality_op)
+              rhs: (unary_expression
+                operator: (inequality_op)
+                operand: (low_identifier_expression)))
+            operator: (and_op)
+            rhs: (binary_expression
+              lhs: (low_identifier_expression)
+              operator: (inequality_op)
+              rhs: (binary_expression
+                lhs: (low_identifier_expression)
+                operator: (comparison_op)
+                rhs: (integer))))
+          operator: (or_op)
+          rhs: (binary_expression
+            lhs: (binary_expression
+              lhs: (binary_expression
+                lhs: (low_identifier_expression)
+                operator: (comparison_op)
+                rhs: (integer))
+              operator: (inequality_op)
+              rhs: (binary_expression
+                lhs: (low_identifier_expression)
+                operator: (comparison_op)
+                rhs: (integer)))
+            operator: (and_op)
+            rhs: (binary_expression
+              lhs: (low_identifier_expression)
+              operator: (comparison_op)
+              rhs: (integer))))))))
