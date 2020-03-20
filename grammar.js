@@ -109,8 +109,13 @@ let rules = {
   // !!! COLON
   _full_type: $ => $._operator_type,
   _app_type: $ => choice($._term_type, $.application_type),
-  _term_type: $ => choice($._identifier, seq('(', $._full_type, ')')),
-  application_type: $ => seq($.high_identifier, repeat1($._term_type)),
+  _term_type: $ => choice(
+    seq('(', $._full_type, ')'),
+    $.low_identifier_type,
+    $.high_identifier_type),
+  application_type: $ => seq(field('fn', $.high_identifier_type), repeat1($._term_type)),
+  low_identifier_type: $ => $._low_identifier,
+  high_identifier_type: $ => $._high_identifier,
 
   // Patterns -----------------------------------------------------------------------
 
@@ -119,17 +124,21 @@ let rules = {
     alias($.dot_pattern, $.binary_pattern),
     $.low_application_pattern),
 
-  low_application_pattern: $ => seq($.low_identifier, repeat1($._term_pattern)),
+  low_application_pattern: $ => seq(field('fn', $.low_identifier_pattern), repeat1($._term_pattern)),
   dot_pattern: $ => binary_op(true, $.dot_op, $._term_pattern, $._term_pattern),
 
   _full_pattern: $ => $._operator_pattern,
   _app_pattern: $ => choice($._term_pattern, $.application_pattern),
-  application_pattern: $ => seq($.high_identifier, repeat1($._term_pattern)),
+  application_pattern: $ => seq(field('fn', $.high_identifier_pattern), repeat1($._term_pattern)),
+  low_identifier_pattern: $ => $._low_identifier,
+  high_identifier_pattern: $ => $._high_identifier,
+  hole_pattern: $ => $._hole,
 
   _term_pattern: $ => choice(
     seq('(', $._full_pattern, ')'),
-    $.hole,
-    $._identifier,
+    $.hole_pattern,
+    $.low_identifier_pattern,
+    $.high_identifier_pattern,
     $._literal),
 
   term_patterns: $ => repeat1($._term_pattern),
@@ -162,27 +171,38 @@ let rules = {
   // !!! COLON
   // invoked by make_ops
   _app_expression: $ => choice(
+    $._leading_expression,
+    $.application_expression),
+
+  application_expression: $ => seq(field('fn', $._leading_expression), repeat1($._term_expression)),
+
+  _leading_expression: $ => choice(
     $._term_expression,
-    $.application_expression,
     $.subscribe_expression,
     $.prim_expression,
     $._match_expression),
 
-  application_expression: $ => seq(
-    field('fn', $._app_expression),
-    field('arg', $._term_expression)),
-
-  subscribe_expression: $ => seq('subscribe', field('id', $.low_identifier)),
+  subscribe_expression: $ => seq('subscribe', field('id', $.low_identifier_expression)),
   prim_expression: $ => seq('prim', field('name', $._string)),
 
-  _term_expression: $ => choice($._nodot_expression, alias($.dot_expression, $.binary_expression)),
+  _term_expression: $ => choice(
+    $._nodot_expression,
+    alias($.dot_expression, $.binary_expression)),
+
   dot_expression: $ => binary_op(true, $.dot_op, $._term_expression, $._nodot_expression),
 
   _nodot_expression: $ => choice(
     seq('(', $.block_expression, ')'),
-    $.hole,
-    $._identifier,
+    $.hole_expression,
+    $.here_expression,
+    $.low_identifier_expression,
+    $.high_identifier_expression,
     $._literal),
+
+  low_identifier_expression: $ => $._low_identifier,
+  high_identifier_expression: $ => $._high_identifier,
+  here_expression: $ => seq('here'),
+  hole_expression: $ => $._hole,
 
   // Match expression ---------------------------------------------------------------
 
@@ -260,22 +280,22 @@ let rules = {
   topic: $ => seq(
     field('global', optional($.global_flag)),
     field('export', optional($.export_flag)),
-    'topic',  $.low_identifier,
-    ':',      $._full_type,
+    'topic', field('name', $.low_identifier_pattern),
+    ':',     field('type', $._full_type),
     $._eol),
 
   publish: $ => seq(
-    'publish', $.low_identifier,
-    '=',       $.block_expression,
+    'publish', field('name',  $.low_identifier_expression),
+    '=',       field('block', $.block_expression),
     $._eol),
 
-  type_params: $ => repeat1($.low_identifier),
+  type_params: $ => repeat1($.low_identifier_type),
 
   tuple: $ => seq(
     field('global', optional($.global_flag)),
     field('export', optional($.export_flag)),
     'tuple',
-    field('name', $.high_identifier),
+    field('name',   $.high_identifier_type),
     field('params', optional($.type_params)),
     '=',
     $._indent,
@@ -287,19 +307,19 @@ let rules = {
     $._eol,
     field('global', optional($.global_flag)),
     field('export', optional($.export_flag)),
-    field('name', $.high_identifier),
+    field('name', $.high_identifier_pattern),
     ':',
     field('type', $._full_type)),
 
   // data type definitions do not allow recursion:
   _data_type: $ => choice(
-    $.high_identifier,
+    $.high_identifier_type,
     alias($.data_application_type, $.application_type),
     alias($.data_binary_type, $.binary_type),
     alias($.data_unary_type, $.unary_type)),
-  data_application_type: $ => seq($.high_identifier, repeat1($.low_identifier)),
-  data_binary_type: $ => choice(...operators.map(([op, left, prefix]) => binary_op(left,   op($), $.low_identifier, $.low_identifier))),
-  data_unary_type:  $ => choice(...operators.map(([op, left, prefix]) =>  unary_op(prefix, op($), $.low_identifier))),
+  data_application_type: $ => seq($.high_identifier_type, repeat1($.low_identifier_type)),
+  data_binary_type: $ => choice(...operators.map(([op, left, prefix]) => binary_op(left,   op($), $.low_identifier_type, $.low_identifier_type))),
+  data_unary_type:  $ => choice(...operators.map(([op, left, prefix]) =>  unary_op(prefix, op($), $.low_identifier_type))),
 
   constructors: $ => repeat1(seq($._eol, $._full_type)),
   constructor1: $ => $._full_type,
@@ -314,7 +334,9 @@ let rules = {
 
   // Packages -----------------------------------------------------------------------
 
-  package: $ => seq('package', field('name', $.low_identifier), $._eol),
+  package: $ => seq('package', field('name', $.identifier_package), $._eol),
+  identifier_package: $ => $._low_identifier,
+  hole_package: $ => $._hole,
 
   def_kind:   $ => seq('def'),
   type_kind:  $ => seq('type'),
@@ -325,39 +347,38 @@ let rules = {
   binary_arity: $ => seq('binary'),
   _arity: $ => choice($.unary_arity, $.binary_arity),
 
-  _id: $ => choice(
-    $.low_identifier,
-    $.high_identifier,
+  id: $ => choice(
+    $._low_identifier,
+    $._high_identifier,
     ...operators.map(([pattern, lft, pfx]) => pattern($))),
   ideq: $ => seq(
-    field('to', $._id),
-    optional(seq('=', field('from', $._id)))),
+    field('to', $.id),
+    optional(seq('=', field('from', $.id)))),
   ideqs: $ => repeat1($.ideq),
 
   import: $ => seq(
     'from', 
-    field('package', $.low_identifier),
+    field('package', $.identifier_package),
     'import',
-    field('kind', optional($._kind)),
+    field('kind',  optional($._kind)),
     field('arity', optional($._arity)),
-    field('ideqs', choice($.hole, $.ideqs)),
+    field('ideqs', choice($.hole_package, $.ideqs)),
     $._eol), 
 
   export: $ => seq(
     'from', 
-    field('package', $.low_identifier),
+    field('package', $.identifier_package),
     'export',
-    field('kind', $._kind),
+    field('kind',  $._kind),
     field('arity', optional($._arity)),
     field('ideqs', $.ideqs),
     $._eol),
 
   // Lexer --------------------------------------------------------------------------
 
-  _literal: $ => choice($.integer, $.double, $.regexp, $._string, $.here),
+  _literal: $ => choice($.integer, $.double, $.regexp, $._string),
 
-  hole: $ => '_',
-  here: $ => seq('here'),
+  _hole: $ => '_',
 
   integer: $ => {
     const decimal = '([1-9][0-9_]*)';
@@ -399,17 +420,15 @@ let rules = {
   colon_op:       $ => operator('[:]'),
   comma_op:       $ => operator('[,]'),
 
-  low_identifier:  $ => {
+  _low_identifier:  $ => {
     const terms = [id_mod, "*", id_low, id_body, "*"];
     return new RegExp(terms.join(''), 'u');
   },
 
-  high_identifier: $ => {
+  _high_identifier: $ => {
     const terms = [id_mod, "*", id_high, id_body, "*"];
     return new RegExp(terms.join(''), 'u');
-  },
-
-  _identifier: $ => choice($.low_identifier, $.high_identifier),
+  }
 };
 
 make_ops(rules, 'expression');
@@ -419,7 +438,7 @@ make_ops(rules, 'type');
 module.exports = grammar({
   name: 'wake',
 
-  word: $ => $.low_identifier,
+  word: $ => $._low_identifier,
   extras: $ => [ /[ \t\xa0\u1680\u2000-\u200a\u202f\u205f\u2029]/, $._eol ],
 
   externals: $ => [
