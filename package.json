@@ -40,7 +40,9 @@
   "tree-sitter": [
     {
       "scope": "source.wake",
-      "file-types": [ "wake" ]
+      "file-types": [
+        "wake"
+      ]
     }
   ]
 }

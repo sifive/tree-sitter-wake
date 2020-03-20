@@ -317,7 +317,7 @@ let rules = {
     alias($.data_application_type, $.application_type),
     alias($.data_binary_type, $.binary_type),
     alias($.data_unary_type, $.unary_type)),
-  data_application_type: $ => seq($.high_identifier_type, repeat1($.low_identifier_type)),
+  data_application_type: $ => seq(field('fn', $.high_identifier_type), repeat1($.low_identifier_type)),
   data_binary_type: $ => choice(...operators.map(([op, left, prefix]) => binary_op(left,   op($), $.low_identifier_type, $.low_identifier_type))),
   data_unary_type:  $ => choice(...operators.map(([op, left, prefix]) =>  unary_op(prefix, op($), $.low_identifier_type))),
 
@@ -326,7 +326,7 @@ let rules = {
   data: $ => seq(
     field('global', optional($.global_flag)),
     field('export', optional($.export_flag)),
-    'data', field('type', $._full_type),
+    'data', field('type', $._data_type),
     '=', field('constructors', choice(
       seq($._indent, $.constructors, $._dedent),
       alias($.constructor1, $.constructors))),
@@ -439,12 +439,13 @@ module.exports = grammar({
   name: 'wake',
 
   word: $ => $._low_identifier,
-  extras: $ => [ /[ \t\xa0\u1680\u2000-\u200a\u202f\u205f\u2029]/, $._eol ],
+  extras: $ => [ /[ \t\xa0\u1680\u2000-\u200a\u202f\u205f\u2029]/, $.comment, $._eol ],
 
   externals: $ => [
     $._eol,
     $._indent,
-    $._dedent
+    $._dedent,
+    $.comment
   ],
 
   rules: rules

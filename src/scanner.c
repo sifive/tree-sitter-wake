@@ -5,7 +5,8 @@
 enum TokenType {
   EOL,
   INDENT,
-  DEDENT
+  DEDENT,
+  COMMENT
 };
 
 // No more than 32 levels deep or 100 characters total.
@@ -50,30 +51,38 @@ static bool is_nl(int32_t c) {
 
 bool tree_sitter_wake_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
   struct Indentation *i = payload;
+  bool comment = false;
 
   // By default, consume nothing.
   // This is necessary to make it possible to produce INDENT/DEDENT out of nothing.
   lexer->mark_end(lexer);
 
   // Skip any trailing whitespace on the line
-  while (is_lws(lexer->lookahead)) lexer->advance(lexer, true);
+  while (is_lws(lexer->lookahead)) lexer->advance(lexer, false);
 
 empty:
-  // Skip any comments
-  if (lexer->lookahead == '#') {
-    do lexer->advance(lexer, true);
+  // Skip over comment contents
+  if (valid_symbols[COMMENT] && lexer->lookahead == '#') {
+    comment = true;
+    do lexer->advance(lexer, false);
     while (lexer->lookahead && !is_nl(lexer->lookahead));
+    lexer->mark_end(lexer);
   }
 
-  // If we there is still stuff on the current line, there is no EOL/INDENT/DEDENT.
+  // If there is still stuff on the current line, there is no EOL/INDENT/DEDENT/COMMENT.
   if (!is_nl(lexer->lookahead)) return false;
 
   // Skip the leading whitespace
-  do lexer->advance(lexer, true);
+  do lexer->advance(lexer, false);
   while (is_lws(lexer->lookahead));
 
   // Allow empty lines
   if (is_nl(lexer->lookahead) || lexer->lookahead == '#') goto empty;
+
+  if (comment) {
+    lexer->result_symbol = COMMENT;
+    return true;
+  }
 
   // How deeply indented are we?
   unsigned newdepth = lexer->get_column(lexer);

@@ -22,13 +22,35 @@
 "type"		@keyword
 "unary"		@keyword
 
-(block_expression)		@local.scope
-(lambda_expression)		@local.scope
+; Truly special in wake
+"\"		@punctuation.delimiter
+"="		@punctuation.delimiter
+":"		@punctuation.delimiter
+"("		@punctuation.bracket
+")"		@punctuation.bracket
 
-; These forms intoduce a scope that captures their pattern arguments
+(comment)	@comment
+
+; These definitions intoduce a function scope that captures their pattern arguments
 (definition pattern: (low_application_pattern fn: (low_identifier_pattern) @function)) @local.scope
 (definition pattern: (binary_pattern operator: (*) @function)) @local.scope
 (definition pattern: (unary_pattern  operator: (*) @function)) @local.scope
+
+(tuple name: (high_identifier_type) @constructor)
+(tuple (fields (field name: (high_identifier_pattern) @attribute)))
+
+(data type: (binary_type operator: (*) @function))
+(data type: (unary_type  operator: (*) @function))
+(data type: (application_type  fn: (*) @function))
+;(data type: (high_identifier_type) @local.definition)
+
+(data (constructors (binary_type operator: (*) @constructor)))
+(data (constructors (unary_type  operator: (*) @constructor)))
+(data (constructors (application_type fn: (high_identifier_type) @constructor)))
+(data (constructors (high_identifier_type) @constructor))
+
+(block_expression)		@local.scope
+(lambda_expression)		@local.scope
 
 (low_identifier_pattern)	@local.definition
 (high_identifier_pattern)	@local.reference
@@ -56,10 +78,20 @@
 (single_string)			@string
 (double_string)			@string
 
-(tuple (fields (field name: (high_identifier_pattern) @local.definition)))
-
-(data (constructors (binary_type operator: (*) @local.definition @function)))
-(data (constructors (unary_type  operator: (*) @local.definition @function)))
-(data (constructors (application_type fn: (high_identifier_type) @local.definition @function)))
-(data (constructors (low_identifier_type) @local.definition))
-(data (constructors (high_identifier_type) @local.definition))
+; Operators are less interesting than the other properties called out above
+(dot_op)		@operator
+(composition_op)	@operator
+(unary_fn_op)		@operator
+(exponent_op)		@operator
+(muldiv_op)		@operator
+(addsub_op)		@operator
+(comparison_op)		@operator
+(inequality_op)		@operator
+(and_op)		@operator
+(or_op)			@operator
+(currency_op)		@operator
+(lr_arrow_op)		@operator
+(bi_arrow_op)		@operator
+(quantifier_op)		@operator
+(colon_op)		@operator
+(comma_op)		@punctuation.delimiter ; not actually special, but people think it is
