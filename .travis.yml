@@ -19,7 +19,7 @@ addons:
 install:
   - g++ --version
   - npm --version
-  - time npm install
+  - travis_wait time npm install
   - wc -l src/parser.c
   - wc -c build/Release/*.node
-script: npm test
+script: travis_wait npm test
