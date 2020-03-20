@@ -1,0 +1,23 @@
+; highlights.scm
+
+"binary"	@keyword
+"data"		@keyword
+"def"		@keyword
+"else"		@keyword
+"export"	@keyword
+"from"		@keyword
+"global"	@keyword
+"here"		@keyword
+"if"		@keyword
+"import"	@keyword
+"match"		@keyword
+"package"	@keyword
+"prim"		@keyword
+"publish"	@keyword
+"subscribe"	@keyword
+"target"	@keyword
+"then"		@keyword
+"topic"		@keyword
+"tuple"		@keyword
+"type"		@keyword
+"unary"		@keyword

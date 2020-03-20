@@ -1,6 +1,6 @@
 {
   "name": "tree-sitter-wake",
-  "version": "0.1.0",
+  "version": "0.18.0",
   "description": "Wake grammar for tree-sitter",
   "license": "Apache-2.0",
   "author": "SiFive",
@@ -21,7 +21,7 @@
   "keywords": [
     "parser",
     "tree-sitter",
-    "verilog"
+    "wake"
   ],
   "directories": {
     "example": "examples"
@@ -36,5 +36,11 @@
   },
   "devDependencies": {
     "tree-sitter-cli": "^0.16.5"
-  }
+  },
+  "tree-sitter": [
+    {
+      "scope": "source.wake",
+      "file-types": [ "wake" ]
+    }
+  ]
 }

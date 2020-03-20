@@ -233,8 +233,8 @@ let rules = {
 
   // Statements ---------------------------------------------------------------------
 
-  global_flag: $ => 'global',
-  export_flag: $ => 'export',
+  global_flag: $ => seq('global'),
+  export_flag: $ => seq('export'),
 
   top_definition: $ => seq(
     field('global', optional($.global_flag)),
@@ -316,13 +316,13 @@ let rules = {
 
   package: $ => seq('package', field('name', $.low_identifier), $._eol),
 
-  def_kind:   $ => 'def',
-  type_kind:  $ => 'type',
-  topic_kind: $ => 'topic',
+  def_kind:   $ => seq('def'),
+  type_kind:  $ => seq('type'),
+  topic_kind: $ => seq('topic'),
   _kind: $ => choice($.def_kind, $.type_kind, $.topic_kind),
 
-  unary_arity:  $ => 'unary',
-  binary_arity: $ => 'binary',
+  unary_arity:  $ => seq('unary'),
+  binary_arity: $ => seq('binary'),
   _arity: $ => choice($.unary_arity, $.binary_arity),
 
   _id: $ => choice(
@@ -357,7 +357,7 @@ let rules = {
   _literal: $ => choice($.integer, $.double, $.regexp, $._string, $.here),
 
   hole: $ => '_',
-  here: $ => 'here',
+  here: $ => seq('here'),
 
   integer: $ => {
     const decimal = '([1-9][0-9_]*)';
