@@ -350,8 +350,7 @@ let rules = {
   id: $ => choice(
     $._low_identifier,
     $._high_identifier,
-    $.dot_op,
-    ...operators.map(([pattern, lft, pfx]) => pattern($))),
+    $._any_op),
   ideq: $ => seq(
     field('to', $.id),
     optional(seq('=', field('from', $.id)))),
@@ -400,11 +399,24 @@ let rules = {
   // `regex`, but allow \` and \\ inside the string
   regexp: $ => /`[^`\\]*(\\.[^`\\]*)*`/,
 
-  single_string: $ => /'[^']*'/,
-  double_string: $ => /"[^"]*"/, // !!!
+  interpolation: $ => $._full_expression,
+  _string_start:  $ =>  /"[^"\\{\n]*(\\.[^"\\{\n]*)*\{/,
+  _string_middle: $ => /\}[^"\\{\n]*(\\.[^"\\{\n]*)*\{/,
+  _string_end:    $ => /\}[^"\\{\n]*(\\.[^"\\{\n]*)*"/,
+  _string_simple: $ =>  /"[^"\\{\n]*(\\.[^"\\{\n]*)*"/,
+  double_string:  $ => choice(
+    $._string_simple,
+    seq(
+      $._string_start,
+      $.interpolation,
+      repeat(seq(
+        $._string_middle,
+        $.interpolation)),
+      $._string_end)),
+  single_string:  $ => /'[^']*'/,
   _string: $ => choice($.single_string, $.double_string),
 
-  // We can't disable Unicode completely ... so we disable most.
+  _any_op:        $ => new RegExp(op_body + "+", 'u'),
   dot_op:         $ => operator('[.]'),
   composition_op: $ => operator('[∘⊚⋆⦾⧇]'),
   unary_fn_op:    $ => operator('[√∛∜]'),

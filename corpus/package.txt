@@ -23,8 +23,8 @@ from v1_wake export topic environment
     ideqs: (ideqs
       (ideq to: (id) from: (id))
       (ideq to: (id))
-      (ideq to: (id (addsub_op)))
-      (ideq to: (id (addsub_op)))))
+      (ideq to: (id))
+      (ideq to: (id))))
   (import
     package: (identifier_package)
     ideqs: (hole_package))
@@ -33,13 +33,13 @@ from v1_wake export topic environment
     kind: (def_kind)
     arity: (unary_arity)
     ideqs: (ideqs
-      (ideq to: (id (muldiv_op)))))
+      (ideq to: (id))))
   (import
     package: (identifier_package)
     kind: (def_kind)
     arity: (binary_arity)
     ideqs: (ideqs
-      (ideq to: (id (muldiv_op)) from: (id (or_op)))))
+      (ideq to: (id) from: (id))))
   (import
     package: (identifier_package)
     kind: (topic_kind)
@@ -61,8 +61,8 @@ from v1_wake export topic environment
     kind: (def_kind)
     arity: (binary_arity)
     ideqs: (ideqs
-      (ideq to: (id (muldiv_op)))
-      (ideq to: (id (dot_op)))))
+      (ideq to: (id))
+      (ideq to: (id))))
   (export
     package: (identifier_package)
     kind: (type_kind)
