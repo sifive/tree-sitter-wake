@@ -31,8 +31,8 @@ def ranges regex fixup =
   fixup codes | foldr compress Nil | map render | catWith ""
 
 def add l1 l2 = sortBy (_<_) (l2 ++ l1)
-def modop l = add l po_op | filter (\x x != 0x5f && ! exists (_ == x) smid) # _ = 0x5f
-def delsp = filter (\x x != 0x5f && x != 0x5e) # ^ = 0x5e
+def modop l = add l po_op | filter (\x x != 0x5f && x != 0x60 && ! exists (_ == x) smid) # _ = 0x5f ` = 0x60
+def delsp = filter (\x x != 0x5f && x != 0x60 && x != 0x5e) # ^ = 0x5e
 
 # Allow also these in identifiers; e.g. def ∂x = ...
 def smid = explode "϶∂∅∆∇∞∿⋮⋯⋰⋱▷◁◸◹◺◻◼◽◾◿⟀⟁⦰⦱⦲⦳⦴⦵⦽⧄⧅⧈⧉⧊⧋⧌⧍⧖⧗⧝⧞⧠⧨⧩⧪⧫⧬⧭⧮⧯⧰⧱⧲⧳" | map unicodeToInteger
@@ -46,7 +46,7 @@ def classes = "%
   const id_body = '[%{ranges `L.|So|N.|Pc|M.` (add smid)}]';
   const op_mod  = '[%{ranges `Sk` delsp}]';
   const op_body = '[%{ranges `Sm|Sc|Sk` modop}]';
-  const Sc = '[♯%{ranges `Sc` (_)}]';
+  const Sc      = '[♯%{ranges `Sc` (_)}]';
   %"
 
 def _ = println classes
