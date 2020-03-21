@@ -1,6 +1,6 @@
 {
   "name": "tree-sitter-wake",
-  "version": "0.18.0",
+  "version": "0.18.1",
   "description": "Wake grammar for tree-sitter",
   "license": "Apache-2.0",
   "author": "SiFive",
