@@ -37,11 +37,10 @@ def delsp = filter (\x x != 0x5f && x != 0x60 && x != 0x5e) # ^ = 0x5e
 # Allow also these in identifiers; e.g. def ∂x = ...
 def smid = explode "϶∂∅∆∇∞∿⋮⋯⋰⋱▷◁◸◹◺◻◼◽◾◿⟀⟁⦰⦱⦲⦳⦴⦵⦽⧄⧅⧈⧉⧊⧋⧌⧍⧖⧗⧝⧞⧠⧨⧩⧪⧫⧬⧭⧮⧯⧰⧱⧲⧳" | map unicodeToInteger
 def po_op = explode "!%&*,./:-" | map unicodeToInteger
-def underscore = 0x5f
 
 def classes = "%
   const id_mod  = '[%{ranges `Lm|M.` (_)}]';
-  const id_low  = '[%{ranges `L[lo]|So` (add (underscore, smid))}]';
+  const id_low  = '[%{ranges `L[lo]|So` (add smid)}]';
   const id_high = '[%{ranges `L[tu]` (_)}]';
   const id_body = '[%{ranges `L.|So|N.|Pc|M.` (add smid)}]';
   const op_mod  = '[%{ranges `Sk` delsp}]';
