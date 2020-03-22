@@ -1,0 +1,9 @@
+==================
+Package system
+==================
+
+from v1_wake import a _
+
+---
+
+(source_file (import (identifier_package) (ideqs (ideq (id))) (ERROR)))

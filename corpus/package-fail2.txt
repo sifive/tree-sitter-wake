@@ -1,0 +1,9 @@
+==================
+Package system
+==================
+
+from v1_wake export a
+
+---
+
+(source_file (export (identifier_package) (def_kind (MISSING "def")) (ideqs (ideq (id)))))
