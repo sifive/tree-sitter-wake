@@ -1,3 +1,5 @@
+'use strict';
+
 function unary_op(prefix, op, arg) {
   if (prefix) {
     return seq(
@@ -40,7 +42,7 @@ const operators = [
   [ 'bi_arrow',    $ => $.bi_arrow_op,    false, true  ],
   [ 'quantifier',  $ => $.quantifier_op,  true,  true  ], // future: left?
   [ 'colon',       $ => $.colon_op,       true,  true  ],
-  [ 'comma',       $ => $.comma_op,       false, false ], // future: postfix?
+  [ 'comma',       $ => $.comma_op,       false, false ]  // future: postfix?
 ];
 
 function make_ops($, kind) {
@@ -68,7 +70,7 @@ function make_ops($, kind) {
     }
 
     token = _binary_i;
-  })
+  });
 
   $['_operator_' + kind] = $ => $[token];
 }
@@ -93,7 +95,7 @@ const Sc      = '[♯\x24\xa2-\xa5\u058f\u060b\u07fe\u07ff\u09f2\u09f3\u09fb\u0a
 //const Sm_multi  = '[⌠⌡⍼⎛⎜⎝⎞⎟⎠⎡⎢⎣⎤⎥⎦⎧⎨⎩⎪⎫⎬⎭⎮⎯⎰⎱⎲⎳⏜⏝⏞⏟⏠⏡]';
 
 function operator(category) {
-  const terms = [op_mod, "*", category, op_body, "*"];
+  const terms = [op_mod, '*', category, op_body, '*'];
   return new RegExp(terms.join(''), 'u');
 }
 
@@ -423,7 +425,7 @@ let rules = {
   single_string:  $ => /'[^']*'/,
   _string: $ => choice($.single_string, $.double_string),
 
-  _any_op:        $ => new RegExp(op_body + "+", 'u'),
+  _any_op:        $ => new RegExp(op_body + '+', 'u'),
   dot_op:         $ => operator('[.]'),
   composition_op: $ => operator('[∘⊚⋆⦾⧇]'),
   unary_fn_op:    $ => operator('[√∛∜]'),
@@ -442,12 +444,12 @@ let rules = {
   comma_op:       $ => operator('[,]'),
 
   _low_identifier:  $ => {
-    const terms = [id_mod, "*(", id_low, "|_", id_body, ")", id_body, "*"];
+    const terms = [id_mod, '*(', id_low, '|_', id_body, ')', id_body, '*'];
     return new RegExp(terms.join(''), 'u');
   },
 
   _high_identifier: $ => {
-    const terms = [id_mod, "*", id_high, id_body, "*"];
+    const terms = [id_mod, '*', id_high, id_body, '*'];
     return new RegExp(terms.join(''), 'u');
   }
 };

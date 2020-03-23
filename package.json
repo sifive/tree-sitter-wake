@@ -44,9 +44,12 @@
   "eslintConfig": {
     "extends": "@drom/eslint-config/eslint4/node8",
     "rules": {
-      "camelcase": 0
+      "camelcase": 0,
+      "array-bracket-spacing": 0,
+      "no-unused-vars": 0
     },
     "globals": {
+      "grammar": "readonly",
       "field": "readonly",
       "seq": "readonly",
       "choice": "readonly",
