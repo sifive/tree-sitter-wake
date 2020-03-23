@@ -411,10 +411,6 @@ let rules = {
   regexp: $ => /`[^`\\]*(\\.[^`\\]*)*`/,
 
   interpolation: $ => $._full_expression,
-  _string_start:  $ =>  /"[^"\\{\n]*(\\.[^"\\{\n]*)*\{/,
-  _string_middle: $ => /\}[^"\\{\n]*(\\.[^"\\{\n]*)*\{/,
-  _string_end:    $ => /\}[^"\\{\n]*(\\.[^"\\{\n]*)*"/,
-  _string_simple: $ =>  /"[^"\\{\n]*(\\.[^"\\{\n]*)*"/,
   double_string:  $ => choice(
     $._string_simple,
     seq(
@@ -470,7 +466,11 @@ module.exports = grammar({
     $._eol,
     $._indent,
     $._dedent,
-    $.comment
+    $.comment,
+    $._string_start,
+    $._string_middle,
+    $._string_end,
+    $._string_simple
   ],
 
   rules: rules
