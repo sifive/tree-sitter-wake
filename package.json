@@ -45,6 +45,15 @@
     "extends": "@drom/eslint-config/eslint4/node8",
     "rules": {
       "camelcase": 0
+    },
+    "globals": {
+      "field": "readonly",
+      "seq": "readonly",
+      "choice": "readonly",
+      "alias": "readonly",
+      "repeat": "readonly",
+      "repeat1": "readonly",
+      "optional": "readonly"
     }
   },
   "tree-sitter": [
