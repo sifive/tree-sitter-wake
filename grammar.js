@@ -400,9 +400,9 @@ let rules = {
   },
 
   double: $ => {
-    const double10  = '([0-9][0-9_]*\.[0-9_]+([eE][+-]?[0-9_]+)?)';
+    const double10  = '([0-9][0-9_]*\\.[0-9_]+([eE][+-]?[0-9_]+)?)';
     const double10e = '([0-9][0-9_]*[eE][+-]?[0-9_]+)';
-    const double16  = '(0x[0-9a-fA-F_]+\.[0-9a-fA-F_]+([pP][+-]?[0-9a-fA-F_]+)?)';
+    const double16  = '(0x[0-9a-fA-F_]+\\.[0-9a-fA-F_]+([pP][+-]?[0-9a-fA-F_]+)?)';
     const double16e = '(0x[0-9a-fA-F_]+[pP][+-]?[0-9a-fA-F_]+)';
     return new RegExp([double10, double10e, double16, double16e].join('|'));
   },
