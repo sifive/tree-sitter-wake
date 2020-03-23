@@ -16,7 +16,8 @@
   "files": [
     "grammar.js",
     "binding.gyp",
-    "src/*"
+    "bin/",
+    "src/"
   ],
   "keywords": [
     "parser",
