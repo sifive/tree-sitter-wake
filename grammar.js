@@ -25,22 +25,22 @@ function binary_op(left, op, repeat, term) {
 }
 
 const operators = [
-  // operator,  left-associative, prefix
-  [ $ => $.composition_op, true,  true  ], // future: left?
-  [ $ => $.unary_fn_op,    true,  true  ], // future: left?
-  [ $ => $.exponent_op,    false, false ], // future: postfix?
-  [ $ => $.muldiv_op,      true,  true  ],
-  [ $ => $.addsub_op,      true,  true  ],
-  [ $ => $.comparison_op,  true,  true  ],
-  [ $ => $.inequality_op,  false, true  ],
-  [ $ => $.and_op,         true,  true  ],
-  [ $ => $.or_op,          true,  true  ],
-  [ $ => $.currency_op,    false, true  ],
-  [ $ => $.lr_arrow_op,    true,  true  ],
-  [ $ => $.bi_arrow_op,    false, true  ],
-  [ $ => $.quantifier_op,  true,  true  ], // future: left?
-  [ $ => $.colon_op,       true,  true  ],
-  [ $ => $.comma_op,       false, false ], // future: postfix?
+  // name, operator,  left-associative, prefix
+  [ 'composition', $ => $.composition_op, true,  true  ], // future: left?
+  [ 'unary_fn',    $ => $.unary_fn_op,    true,  true  ], // future: left?
+  [ 'exponent',    $ => $.exponent_op,    false, false ], // future: postfix?
+  [ 'muldiv',      $ => $.muldiv_op,      true,  true  ],
+  [ 'addsub',      $ => $.addsub_op,      true,  true  ],
+  [ 'comparison',  $ => $.comparison_op,  true,  true  ],
+  [ 'inequality',  $ => $.inequality_op,  false, true  ],
+  [ 'and',         $ => $.and_op,         true,  true  ],
+  [ 'or',          $ => $.or_op,          true,  true  ],
+  [ 'currency',    $ => $.currency_op,    false, true  ],
+  [ 'lr_arrow',    $ => $.lr_arrow_op,    true,  true  ],
+  [ 'bi_arrow',    $ => $.bi_arrow_op,    false, true  ],
+  [ 'quantifier',  $ => $.quantifier_op,  true,  true  ], // future: left?
+  [ 'colon',       $ => $.colon_op,       true,  true  ],
+  [ 'comma',       $ => $.comma_op,       false, false ], // future: postfix?
 ];
 
 function make_ops($, kind) {
@@ -50,9 +50,9 @@ function make_ops($, kind) {
   $[binary] = $ => 'unreachable';
 
   let token = '_app_' + kind;
-  operators.forEach(([opfn, left, prefix], i) => {
-    const  unary_i  = 'unary_'  + kind + '_' + i;
-    const  binary_i = 'binary_' + kind + '_' + i;
+  operators.forEach(([name, opfn, left, prefix]) => {
+    const  unary_i  = 'unary_'  + name + '_' + kind;
+    const  binary_i = 'binary_' + name + '_' + kind;
     const _unary_i  = '_' + unary_i;
     const _binary_i = '_' + binary_i;
     const  prior = token;
@@ -60,7 +60,12 @@ function make_ops($, kind) {
     $[ unary_i] = $ =>  unary_op(prefix, opfn($), $[_unary_i]);
     $[binary_i] = $ => binary_op(left,   opfn($), $[_binary_i], $[_unary_i]);
     $[ _unary_i] = $ => choice($[prior],    alias($[ unary_i], $[ unary]));
-    $[_binary_i] = $ => choice($[_unary_i], alias($[binary_i], $[binary]));
+    if (_binary_i in $) {
+      const prior = $[_binary_i];
+      $[_binary_i] = $ => choice($[_unary_i], alias($[binary_i], $[binary]), prior($));
+    } else {
+      $[_binary_i] = $ => choice($[_unary_i], alias($[binary_i], $[binary]));
+    }
 
     token = _binary_i;
   })
@@ -106,13 +111,16 @@ let rules = {
 
   // Types --------------------------------------------------------------------------
 
-  // !!! COLON
   _full_type: $ => $._operator_type,
   _app_type: $ => choice($._term_type, $.application_type),
   _term_type: $ => choice(
     seq('(', $._full_type, ')'),
     $.low_identifier_type,
     $.high_identifier_type),
+  _binary_colon_type: $ => $.tag_type,
+  tag_type: $ => seq(
+    field('tag', $.low_identifier_expression), ':',
+    field('type', $._unary_colon_type)),
   application_type: $ => seq(field('fn', $.high_identifier_type), repeat1($._term_type)),
   low_identifier_type: $ => $._low_identifier,
   high_identifier_type: $ => $._high_identifier,
@@ -168,12 +176,15 @@ let rules = {
     'then', field('then',      $.block_expression),
     'else', field('else',      $.block_expression)),
 
-  // !!! COLON
   // invoked by make_ops
   _app_expression: $ => choice(
     $._leading_expression,
     $.application_expression),
 
+  _binary_colon_expression: $ => $.ascription_expression,
+  ascription_expression: $ => seq(
+    field('expr', $._binary_colon_expression), ':',
+    field('type', $._unary_colon_type)),
   application_expression: $ => seq(field('fn', $._leading_expression), repeat1($._term_expression)),
 
   _leading_expression: $ => choice(
@@ -318,8 +329,8 @@ let rules = {
     alias($.data_binary_type, $.binary_type),
     alias($.data_unary_type, $.unary_type)),
   data_application_type: $ => seq(field('fn', $.high_identifier_type), repeat1($.low_identifier_type)),
-  data_binary_type: $ => choice(...operators.map(([op, left, prefix]) => binary_op(left,   op($), $.low_identifier_type, $.low_identifier_type))),
-  data_unary_type:  $ => choice(...operators.map(([op, left, prefix]) =>  unary_op(prefix, op($), $.low_identifier_type))),
+  data_binary_type: $ => choice(...operators.map(([name, op, left, prefix]) => binary_op(left,   op($), $.low_identifier_type, $.low_identifier_type))),
+  data_unary_type:  $ => choice(...operators.map(([name, op, left, prefix]) =>  unary_op(prefix, op($), $.low_identifier_type))),
 
   constructors: $ => repeat1(seq($._eol, $._full_type)),
   constructor1: $ => $._full_type,
